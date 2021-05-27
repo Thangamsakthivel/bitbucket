@@ -1,2 +1,2 @@
 # bitbucket
-Resource allocator
+Resource allocation and calculation.
