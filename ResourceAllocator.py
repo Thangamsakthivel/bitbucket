@@ -1,2 +1,3 @@
-def __init__:
-    main()
+hours = int(input())
+cpus = int(input())
+price = float(input())
