@@ -8,7 +8,9 @@ class calc:
         32: "10xlarge"
     }
 
-    def cpuByRegion(c,p,cpus):
+    def byCpu(hours, cpus):
+        c = [[32, 16, 8, 4, 2, 1], [32, 16, 8, 4, 1]]
+        p = [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
         serverType = []
         serverCount = []
         for i in range(2):
@@ -19,7 +21,6 @@ class calc:
                 elif(c[i][j] <= s):
                     p[i][j] = s//c[i][j]
                     s = s%c[i][j]
-
             st = []
             sc = []
             for j in range(len(p[i])):
@@ -30,18 +31,10 @@ class calc:
             serverCount.append(sc)
         return serverCount,serverType
 
-    def byCpu(hours, cpus):
-        c = [[32, 16, 8, 4, 2, 1], [32, 16, 8, 4, 1]]
-        p = [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
-        serverType = []
-        serverCount = []
-        serverCount,serverType=calc.cpuByRegion(c, p, cpus)
-        print(serverCount)
-        print(serverType)
-
     def getCost(instances, hours, cpus, price):
         if(price == 0):
-            calc.byCpu(hours, cpus)
+            serverCount,serverType=calc.byCpu(hours, cpus)
+            print(serverCount,serverType)
 
 
 instances={
