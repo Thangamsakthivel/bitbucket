@@ -1,3 +1,4 @@
+import math
 instances={
     0 : {
         0.12: "large",
@@ -34,7 +35,7 @@ class calc:
         }
     }
 
-    def by(value, option, types):  #To calculate the requirment of the server by using CPU count 
+    def by(value, hours, types, option):  #To calculate the requirment of the server by using CPU count 
         if(option == "cpus"):
             c = [[32, 16, 8, 4, 2, 1], [32, 16, 8, 4, 1]]
         elif(option == "price"):
@@ -48,40 +49,67 @@ class calc:
                 if(s == 0):
                     break
                 elif(c[i][j] <= s):
-                    st.append(types[i][c[i][j]])
-                    sc.append(s//c[i][j])
-                    s = s%c[i][j]      
+                    if(s//(c[i][j]*hours) >= 1.0):
+                        sc.append(int((s//(c[i][j]*hours))))
+                        st.append(types[i][c[i][j]])
+                    s = s%(c[i][j]*hours)      
             serverType.append(st)
             serverCount.append(sc)
         return serverCount, serverType
 
+    def getKey(i,val):
+        for key, value in instances[i].items():
+             if val == value:
+                 return key
+
     def getCost(hours, cpus, price):
         serverCount, serverType = [], []
         if(price == 0 and cpus != 0):
-            serverCount, serverType=calc.by(cpus, "cpus", calc.types)
-            print(serverCount, serverType)
+            serverCount, serverType=calc.by(cpus, 1, calc.types, "cpus")
         elif(cpus == 0 and price != 0):
-            serverCount, serverType=calc.by(price/hours, "price", instances)
-            print(serverCount, serverType)
-        else:
-            pass           
+            serverCount, serverType=calc.by(price, hours, instances, "price")
+        else: 
+            start()
+        cost = []
+        for i in range(2):
+            c=0
+            for j in range(len(serverCount[i])):
+                costPerServer = calc.getKey(i,serverType[i][j])
+                c += costPerServer*serverCount[i][j]
+            cost.append(round(c*hours,2))
+        region = ["us-east", "us-west"]
+        result = {0:{},1:{}}
+        for i in range(2):
+            result[i].update({"region":region[i]})
+            result[i].update({"totol-cost":"$"+str(cost[i])})
+            result[i].update({"server":[serverType[i],serverCount[i]]})
+        print(result)
+        
 
-print("Select type")
-print("1. Minimum N CPUs for H hours")
-print("2. Maximum price they are willing to pay for H hours")
-print("3. Combination of both 1 and 2")
-option = int(input("Enter your Choice: "))
+def start():
+    print("Select type")
+    print("1. Minimum N CPUs for H hours")
+    print("2. Maximum price they are willing to pay for H hours")
+    print("3. Combination of both 1 and 2")
+    option = int(input("Enter your Choice: "))
 
-if(option == 1):
-    hours = int(input("Enter hours required: "))
-    cpus = int(input("Enter the number of CPU required: "))
-    calc.getCost(hours, cpus, 0)
-elif(option == 2):
-    hours = int(input("Enter hours required: "))
-    price = float(input("Enter how much price willing to pay: "))
-    calc.getCost(hours, 0, price)
-elif(option == 3):
-    hours = int(input("Enter hours required: "))
-    cpus = int(input("Enter the number of CPU required: "))
-    price = float(input("Enter how much price willing to pay: "))
+    if(option == 1):
+        hours = int(input("Enter hours required: "))
+        cpus = int(input("Enter the number of CPU required: "))
+        calc.getCost(hours, cpus, 0)
+    elif(option == 2):
+        hours = int(input("Enter hours required: "))
+        price = float(input("Enter how much price willing to pay: "))
+        calc.getCost(hours, 0, price)
+    elif(option == 3):
+        print("Sorry! this feature have not completed yet")
+        exit(0)
+        hours = int(input("Enter hours required: "))
+        cpus = int(input("Enter the number of CPU required: "))
+        price = float(input("Enter how much price willing to pay: "))
+        calc.getCost(hours, cpus, price)
+    else:
+        print("\nPlease select among the given options\n")
+        start()
 
+start()
