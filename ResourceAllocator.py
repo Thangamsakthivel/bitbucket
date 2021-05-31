@@ -64,23 +64,27 @@ class calc:
     def byCombinationOfBoth(hours, Cpus, Price, types):
         serverOption = [[32, 16, 8, 4, 2, 1], [32, 16, 8, 4, 1]]
         priceOption = [[2.82, 1.4, 0.774, 0.45, 0.23, 0.12], [2.97, 1.3, 0.89, 0.413, 0.14]]
+        c = [[0,0,0,0,0,0],[0,0,0,0,0]]
         serverType, serverCount = [], []
         for i in range(2):
             cpus = Cpus
             price = Price
             st = []
             sc = []
-            for j in range(len(serverOption[i])):
-                if(cpus == 0):
-                    break
-                elif(serverOption[i][j] <= cpus and priceOption[i][j] <= price):
-                    if(((price//(priceOption[i][j]*hours) >= 1.0) and cpus//serverOption[i][j])):
-                        sc.append(int((price//(priceOption[i][j]*hours))))
-                        st.append(instances[i][priceOption[i][j]])
-                        price = price%(priceOption[i][j]*hours)
+            while(cpus != 0 and price >= 1.0):
+                for k in range(len(priceOption[i])):
+                    if((price >= priceOption[i][k]*hours) and cpus >= serverOption[i][k]):
+                        cpus -= serverOption[i][k]
+                        price -= priceOption[i][k]*hours
+                        c[i][k] += 1
+            for j in range(len(c[i])):
+                if(c[i][j] != 0):
+                    sc.append(c[i][j])
+                    st.append(types[i][serverOption[i][j]])
             serverType.append(st)
             serverCount.append(sc)
         return serverCount, serverType
+
 
 
     def getCost(hours, cpus, price):
@@ -104,7 +108,7 @@ class calc:
         result = [{},{}]
         for i in range(2):
             result[i].update({"region":region[i]})
-            result[i].update({"totol-cost":"$"+str(cost[i])})
+            result[i].update({"total-cost":"$"+str(cost[i])})
             result[i].update({"server":server[i]})
         print(result)
         
